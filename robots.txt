@@ -1,0 +1,8 @@
+# Allow search engines to index the store, but keep checkout flow pages out.
+User-agent: *
+Allow: /
+Disallow: /checkout.html
+Disallow: /success.html
+
+# Add your domain once you have one, then create sitemap.xml:
+# Sitemap: https://yourdomain.com/sitemap.xml

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Order confirmed</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header id="site-header"></header>
+
+<main id="main">
+  <section class="section">
+    <div class="wrap" style="max-width:720px">
+      <div id="order-root"></div>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const root = $('#order-root');
+let order = null;
+try { order = JSON.parse(localStorage.getItem('aikit.lastOrder') || 'null'); } catch { order = null; }
+
+if (!order) {
+  root.innerHTML = `
+    <div class="empty-state">
+      <h3>No recent order found</h3>
+      <p>If you just bought something, check the confirmation email — your download links are in there too.</p>
+      <a class="btn btn--primary" href="shop.html">Browse products</a>
+    </div>`;
+} else {
+  const items = order.items.map(i => ({ product: getProduct(i.id), qty: i.qty })).filter(i => i.product);
+  const placed = new Date(order.placedAt);
+
+  root.innerHTML = `
+    <div class="center">
+      <span class="success-mark">${icon('check')}</span>
+      <h1>Thanks, ${esc(order.name.split(' ')[0])} — you're all set</h1>
+      <p class="muted" style="margin-top:12px;max-width:52ch;margin-inline:auto">
+        Order <strong>${esc(order.id)}</strong> is confirmed. A copy of these links has been sent to
+        <strong>${esc(order.email)}</strong>. They never expire, and updates land in the same place.
+      </p>
+    </div>
+
+    <h2 style="font-size:1.2rem;margin:36px 0 14px">Your downloads</h2>
+    ${items.map(({ product: p, qty }) => `
+      <div class="download-row">
+        <span class="cart-item__art" style="background: linear-gradient(135deg, ${p.gradient[0]}, ${p.gradient[1]})">${icon(p.icon)}</span>
+        <span style="flex:1;min-width:0">
+          <span style="display:block;font-weight:600;font-size:.95rem">${esc(p.name)}</span>
+          <span class="tiny muted">${esc(p.specs.Format)} · ${esc(p.specs.Files)}${qty > 1 ? ` · ${qty} licences` : ''}</span>
+        </span>
+        <button class="btn btn--ghost btn--sm" type="button" data-download="${esc(p.name)}">${icon('download')} Download</button>
+      </div>`).join('')}
+
+    <div class="summary" style="position:static;margin-top:26px">
+      <div class="summary__row"><span>Order number</span><span>${esc(order.id)}</span></div>
+      <div class="summary__row"><span>Date</span><span>${placed.toLocaleDateString('en-US', { dateStyle: 'medium' })}</span></div>
+      <div class="summary__row"><span>Items</span><span>${items.reduce((n, i) => n + i.qty, 0)}</span></div>
+      <div class="summary__row summary__row--total"><span>Paid</span><span>${money(order.total)}</span></div>
+    </div>
+
+    <div class="card" style="margin-top:26px">
+      <h3>What happens next</h3>
+      <ul class="includes" style="margin-top:14px">
+        <li>${icon('check')}<span>Open your files and start with the included quick-start note — it takes about ten minutes.</span></li>
+        <li>${icon('check')}<span>When a product is updated you'll get an email with the new version, free.</span></li>
+        <li>${icon('check')}<span>Stuck on anything? Reply to the confirmation email or write to <a href="mailto:${esc(SITE.supportEmail)}">${esc(SITE.supportEmail)}</a>.</span></li>
+      </ul>
+    </div>
+
+    <div class="center" style="margin-top:30px">
+      <a class="btn btn--primary" href="shop.html">Keep browsing</a>
+    </div>`;
+
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('[data-download]');
+    if (!btn) return;
+    toast('Demo store — connect a real file host to serve downloads', 'info');
+  });
+}
+</script>
+</body>
+</html>

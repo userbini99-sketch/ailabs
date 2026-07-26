@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAQ</title>
+<meta name="description" content="Answers on delivery, licences, refunds, updates, team pricing and what you need to run each product.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header id="site-header"></header>
+
+<main id="main">
+  <section class="page-head">
+    <div class="wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>FAQ</span></nav>
+      <span class="eyebrow">Answers</span>
+      <h1>Frequently asked questions</h1>
+      <p>If your question isn't here, email us — replies usually come the same day.</p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:36px">
+    <div class="wrap" style="max-width:860px">
+      <div class="accordion" id="faq-all"></div>
+
+      <div class="card" style="margin-top:32px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between">
+        <div>
+          <h3>Still stuck?</h3>
+          <p class="muted small" style="margin-top:6px">Ask before you buy. We'd rather talk you out of the wrong product than refund it later.</p>
+        </div>
+        <a class="btn btn--primary" href="contact.html">Contact support</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+$('#faq-all').innerHTML = FAQS.map((f, i) => `
+  <details${i === 0 ? ' open' : ''}>
+    <summary>${esc(f.q)}</summary>
+    <div class="acc-body">${esc(f.a)}</div>
+  </details>`).join('');
+</script>
+</body>
+</html>

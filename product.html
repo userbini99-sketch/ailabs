@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Product</title>
+<meta name="description" content="Product details — instant download, free lifetime updates, 14-day refund.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header id="site-header"></header>
+
+<main id="main">
+  <div id="product-root"></div>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const productId = new URLSearchParams(location.search).get('id');
+const product = getProduct(productId);
+const root = $('#product-root');
+
+if (!product) {
+  root.innerHTML = `
+    <section class="section">
+      <div class="wrap">
+        <div class="empty-state">
+          ${icon('search')}
+          <h3>We couldn't find that product</h3>
+          <p>It may have been renamed or retired. Everything currently available is on the shop page.</p>
+          <a class="btn btn--primary" href="shop.html">Browse all products</a>
+        </div>
+      </div>
+    </section>`;
+} else {
+  document.title = `${product.name} — ${SITE.name}`;
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) metaDesc.setAttribute('content', product.short);
+
+  const related = PRODUCTS
+    .filter(p => p.id !== product.id)
+    .sort((a, b) => (b.category === product.category) - (a.category === product.category) || b.rating - a.rating)
+    .slice(0, 3);
+
+  root.innerHTML = `
+    <section class="page-head">
+      <div class="wrap">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html">Home</a> <span>/</span>
+          <a href="shop.html">Shop</a> <span>/</span>
+          <a href="shop.html?cat=${product.category}">${esc(categoryName(product.category))}</a> <span>/</span>
+          <span>${esc(product.name)}</span>
+        </nav>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:26px">
+      <div class="wrap pdp">
+
+        <div>
+          <div class="pdp__art" style="background: linear-gradient(135deg, ${product.gradient[0]}, ${product.gradient[1]})">
+            ${icon(product.icon)}
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:22px 0 14px">
+            <span class="badge badge--flat">${esc(categoryName(product.category))}</span>
+            ${(product.badges || []).map(b => `<span class="badge">${esc(b)}</span>`).join('')}
+            <span class="rating">${icon('star')} <b>${product.rating.toFixed(1)}</b>
+              <span class="muted">· ${product.reviews} reviews</span></span>
+          </div>
+
+          <h1 style="font-size:clamp(1.7rem,3.4vw,2.4rem)">${esc(product.name)}</h1>
+          <p class="muted" style="font-size:1.06rem;margin-top:12px;max-width:60ch">${esc(product.short)}</p>
+
+          <div class="prose" style="margin-top:8px">${product.body}</div>
+
+          <h2 style="font-size:1.3rem;margin:36px 0 14px">Details</h2>
+          <dl class="spec-list">
+            ${Object.entries(product.specs).map(([k, v]) => `
+              <div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}
+          </dl>
+
+          <h2 style="font-size:1.3rem;margin:36px 0 14px">What customers say</h2>
+          <div class="grid grid--2">
+            ${TESTIMONIALS.slice(0, 2).map(t => `
+              <figure class="quote">
+                <div class="rating">${icon('star')}${icon('star')}${icon('star')}${icon('star')}${icon('star')}</div>
+                <blockquote>“${esc(t.quote)}”</blockquote>
+                <figcaption class="quote__who">
+                  <span class="avatar">${esc(t.name.split(' ').map(w => w[0]).join('').slice(0, 2))}</span>
+                  <span><b>${esc(t.name)}</b><span>${esc(t.role)}</span></span>
+                </figcaption>
+              </figure>`).join('')}
+          </div>
+        </div>
+
+        <aside class="pdp__buy">
+          <div class="pdp__price">
+            <span class="price">${money(product.price)}</span>
+            ${product.compareAt ? `<del class="muted">${money(product.compareAt)}</del>
+              <span class="badge badge--accent">Save ${Math.round((1 - product.price / product.compareAt) * 100)}%</span>` : ''}
+          </div>
+          <p class="tiny muted" style="margin-bottom:18px">One-time payment · no subscription</p>
+
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+            <span class="small muted">Quantity</span>
+            <div class="qty">
+              <button type="button" id="qty-down" aria-label="Decrease quantity">−</button>
+              <span id="qty-value">1</span>
+              <button type="button" id="qty-up" aria-label="Increase quantity">+</button>
+            </div>
+          </div>
+
+          <button class="btn btn--primary btn--lg btn--block" type="button" id="add-btn">Add to cart</button>
+          <button class="btn btn--ghost btn--block" type="button" id="buy-now" style="margin-top:10px">Buy it now</button>
+
+          <p class="tiny muted center" style="margin:14px 0 20px;display:flex;gap:6px;justify-content:center;align-items:center">
+            ${icon('lock')} Secure checkout · 14-day refund
+          </p>
+
+          <h3 style="font-size:.95rem;margin-bottom:12px">What you get</h3>
+          <ul class="includes">
+            ${product.includes.map(i => `<li>${icon('check')}<span>${esc(i)}</span></li>`).join('')}
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section section--soft">
+      <div class="wrap">
+        <div class="section-head"><h2 style="font-size:1.6rem">You might also like</h2></div>
+        <div class="grid grid--3">${related.map(productCard).join('')}</div>
+      </div>
+    </section>`;
+
+  /* --- Quantity + buy wiring --- */
+  let qty = 1;
+  const qtyValue = $('#qty-value');
+  const addBtn = $('#add-btn');
+  const setQty = n => {
+    qty = Math.min(99, Math.max(1, n));
+    qtyValue.textContent = qty;
+    addBtn.dataset.qty = qty;
+  };
+  addBtn.dataset.add = product.id;   // picked up by the delegated handler in app.js
+  setQty(1);
+
+  $('#qty-down').addEventListener('click', () => setQty(qty - 1));
+  $('#qty-up').addEventListener('click', () => setQty(qty + 1));
+
+  $('#buy-now').addEventListener('click', () => {
+    Cart.add(product.id, qty);
+    location.href = 'checkout.html';
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About</title>
+<meta name="description" content="Who we are and why every product here is tested on real client work before it gets listed.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header id="site-header"></header>
+
+<main id="main">
+  <section class="page-head">
+    <div class="wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>About</span></nav>
+      <span class="eyebrow">About us</span>
+      <h1>We sell the things we already use</h1>
+      <p>Every product on this site started as something built for a paying client, then cleaned up enough to hand to a stranger.</p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:40px">
+    <div class="wrap">
+      <div class="grid grid--2" style="gap:44px;align-items:start">
+        <div class="prose">
+          <h2 style="margin-top:0">How this started</h2>
+          <p>We spent two years doing AI implementation work for small teams — the unglamorous kind, where the deliverable is a spreadsheet that does something useful on Monday morning. The same patterns kept coming up. The same prompts kept getting rewritten from scratch. The same three automations kept getting rebuilt.</p>
+          <p>So we packaged them. The first prompt pack went out to eleven people on a mailing list. It is now the best-selling product on this site.</p>
+
+          <h2>What we will not do</h2>
+          <p>There is a lot of noise in this market and most of it comes from the same three shortcuts. We avoid them:</p>
+          <ul>
+            <li><strong>No scraped prompt lists.</strong> If it has not been run on real work at least fifty times, it does not go in.</li>
+            <li><strong>No fake urgency.</strong> No countdown timers that reset when you reload, no "only 3 left" on a digital file.</li>
+            <li><strong>No subscription trap.</strong> You pay once. Updates are free forever. There is nothing to cancel.</li>
+            <li><strong>No refund friction.</strong> Fourteen days, one email, refunded the same day. We do not ask why.</li>
+          </ul>
+
+          <h2>How products get updated</h2>
+          <p>Models change and prompts rot. Every product gets reviewed each quarter against the current major assistants, and anything that has degraded gets rewritten. You get the new version by email at no cost — that is what "free updates for life" actually means here.</p>
+
+          <h2>Who's behind it</h2>
+          <p>A small team, split between building the products and answering support. Support is not outsourced and it is not a bot: when you email, one of the people who wrote the product writes back, usually within a day.</p>
+        </div>
+
+        <div>
+          <div class="card" style="margin-bottom:20px">
+            <h3>By the numbers</h3>
+            <div class="stats" id="about-stats" style="grid-template-columns:1fr 1fr;margin-top:16px"></div>
+          </div>
+
+          <div class="card" style="margin-bottom:20px">
+            <h3>Our promises</h3>
+            <ul class="includes" id="about-promises" style="margin-top:14px"></ul>
+          </div>
+
+          <div class="card">
+            <h3>Talk to us</h3>
+            <p class="muted small" style="margin:10px 0 16px">Questions about fit, licensing, or team pricing — a person answers.</p>
+            <a class="btn btn--primary btn--block" href="contact.html">Get in touch</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--soft">
+    <div class="wrap">
+      <div class="section-head center">
+        <span class="eyebrow">Customers</span>
+        <h2>What people say after buying</h2>
+      </div>
+      <div class="grid grid--3" id="about-quotes"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="cta-band">
+        <h2>Have a look at what's on the shelf</h2>
+        <p>Twelve products, all instantly downloadable, all covered by the same 14-day refund.</p>
+        <a class="btn btn--primary btn--lg" href="shop.html">Browse products</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+$('#about-stats').innerHTML = STATS
+  .map(s => `<div class="stat" style="padding:16px 10px"><b style="font-size:1.35rem">${esc(s.value)}</b><span class="tiny">${esc(s.label)}</span></div>`).join('');
+
+$('#about-promises').innerHTML = [
+  'Tested on live client work before listing',
+  'Free updates for life, reviewed quarterly',
+  '14-day refund, no questions asked',
+  'Support answered by the people who built it',
+].map(t => `<li>${icon('check')}<span>${esc(t)}</span></li>`).join('');
+
+$('#about-quotes').innerHTML = TESTIMONIALS.slice(2, 5).map(t => `
+  <figure class="quote">
+    <div class="rating">${icon('star')}${icon('star')}${icon('star')}${icon('star')}${icon('star')}</div>
+    <blockquote>“${esc(t.quote)}”</blockquote>
+    <figcaption class="quote__who">
+      <span class="avatar">${esc(t.name.split(' ').map(w => w[0]).join('').slice(0, 2))}</span>
+      <span><b>${esc(t.name)}</b><span>${esc(t.role)}</span></span>
+    </figcaption>
+  </figure>`).join('');
+</script>
+</body>
+</html>

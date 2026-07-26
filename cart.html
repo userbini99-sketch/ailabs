@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your cart</title>
+<meta name="description" content="Review your cart and check out. Instant download after payment.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header id="site-header"></header>
+
+<main id="main">
+  <section class="page-head">
+    <div class="wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>Cart</span></nav>
+      <h1>Your cart</h1>
+      <p>Digital products — nothing ships, everything downloads the moment you pay.</p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:32px">
+    <div class="wrap">
+      <div class="cart-layout" id="cart-layout" hidden>
+        <div>
+          <div id="cart-lines"></div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px">
+            <a class="btn btn--ghost" href="shop.html">Keep shopping</a>
+            <button class="btn btn--danger" type="button" id="clear-cart">Empty cart</button>
+          </div>
+        </div>
+
+        <aside class="summary">
+          <h2 style="font-size:1.2rem;margin-bottom:14px">Order summary</h2>
+          <div id="summary-rows"></div>
+
+          <form class="coupon" id="coupon-form">
+            <label class="sr-only" for="coupon">Discount code</label>
+            <input class="input" id="coupon" placeholder="Discount code" autocomplete="off">
+            <button class="btn btn--ghost btn--sm" type="submit">Apply</button>
+          </form>
+          <p class="tiny muted" id="coupon-msg"></p>
+
+          <a class="btn btn--primary btn--lg btn--block" href="checkout.html" style="margin-top:14px">Checkout</a>
+
+          <ul class="includes" id="guarantees" style="margin-top:20px"></ul>
+        </aside>
+      </div>
+
+      <div class="empty-state" id="cart-empty" hidden>
+        <h3>Your cart is empty</h3>
+        <p>Have a look at the bestsellers — most people start with the Prompt Vault.</p>
+        <a class="btn btn--primary" href="shop.html">Browse products</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head"><h2 style="font-size:1.5rem">Frequently bought together</h2></div>
+      <div class="grid grid--3" id="suggestions"></div>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const layout = $('#cart-layout');
+const emptyBox = $('#cart-empty');
+
+function render() {
+  const { lines, subtotal, discount, total, code, rule } = Cart.totals();
+
+  layout.hidden = lines.length === 0;
+  emptyBox.hidden = lines.length > 0;
+  if (!lines.length) { renderSuggestions([]); return; }
+
+  $('#cart-lines').innerHTML = lines.map(({ product: p, qty, lineTotal }) => `
+    <article class="cart-item">
+      <span class="cart-item__art" style="background: linear-gradient(135deg, ${p.gradient[0]}, ${p.gradient[1]})">${icon(p.icon)}</span>
+      <div>
+        <h3><a href="product.html?id=${p.id}">${esc(p.name)}</a></h3>
+        <p class="tiny muted">${esc(categoryName(p.category))} · ${esc(p.specs.Format)}</p>
+        <div class="qty" style="margin-top:8px">
+          <button type="button" data-qty-down="${p.id}" aria-label="Decrease quantity of ${esc(p.name)}">−</button>
+          <span>${qty}</span>
+          <button type="button" data-qty-up="${p.id}" aria-label="Increase quantity of ${esc(p.name)}">+</button>
+        </div>
+      </div>
+      <div class="cart-item__right">
+        <span class="price">${money(lineTotal)}</span>
+        ${qty > 1 ? `<span class="tiny muted">${money(p.price)} each</span>` : ''}
+        <button class="btn btn--danger btn--sm" type="button" data-remove="${p.id}">Remove</button>
+      </div>
+    </article>`).join('');
+
+  $('#summary-rows').innerHTML = `
+    <div class="summary__row"><span>Subtotal (${lines.reduce((n, l) => n + l.qty, 0)} items)</span><span>${money(subtotal)}</span></div>
+    ${discount > 0 ? `<div class="summary__row" style="color:var(--accent)">
+        <span>Discount · ${esc(code)}</span><span>−${money(discount)}</span></div>` : ''}
+    <div class="summary__row"><span>Delivery</span><span>Instant download</span></div>
+    <div class="summary__row summary__row--total"><span>Total</span><span>${money(total)}</span></div>`;
+
+  $('#coupon-msg').textContent = code ? `Applied: ${rule.label}.` : '';
+  $('#coupon').value = code || '';
+
+  renderSuggestions(lines.map(l => l.id));
+}
+
+function renderSuggestions(inCart) {
+  $('#suggestions').innerHTML = PRODUCTS
+    .filter(p => !inCart.includes(p.id))
+    .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews)
+    .slice(0, 3)
+    .map(productCard).join('');
+}
+
+/* --- Interactions --- */
+$('#cart-lines')?.addEventListener('click', e => {
+  const up = e.target.closest('[data-qty-up]');
+  const down = e.target.closest('[data-qty-down]');
+  const rm = e.target.closest('[data-remove]');
+  if (up) {
+    const line = Cart.read().find(l => l.id === up.dataset.qtyUp);
+    Cart.setQty(up.dataset.qtyUp, (line?.qty || 0) + 1);
+  } else if (down) {
+    const line = Cart.read().find(l => l.id === down.dataset.qtyDown);
+    Cart.setQty(down.dataset.qtyDown, (line?.qty || 0) - 1);
+  } else if (rm) {
+    const p = getProduct(rm.dataset.remove);
+    Cart.remove(rm.dataset.remove);
+    toast(`${p ? p.name : 'Item'} removed`, 'info');
+  }
+});
+
+$('#clear-cart').addEventListener('click', () => {
+  Cart.clear();
+  Coupon.clear();
+  toast('Cart emptied', 'info');
+});
+
+$('#coupon-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const value = $('#coupon').value.trim();
+  if (!value) { Coupon.clear(); return; }
+  if (Coupon.set(value)) toast('Discount applied');
+  else {
+    $('#coupon-msg').textContent = 'That code is not valid or has expired.';
+    $('#coupon-msg').style.color = 'var(--danger)';
+  }
+});
+
+$('#guarantees').innerHTML = [
+  'Instant download after payment',
+  'Free updates for life',
+  '14-day no-questions refund',
+  'Secure payment, we never see your card',
+].map(t => `<li>${icon('check')}<span>${esc(t)}</span></li>`).join('');
+
+document.addEventListener('cart:change', render);
+render();
+</script>
+</body>
+</html>

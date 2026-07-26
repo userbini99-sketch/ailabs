@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact</title>
+<meta name="description" content="Ask about product fit, licensing, team pricing or support. A person replies, usually within a day.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header id="site-header"></header>
+
+<main id="main">
+  <section class="page-head">
+    <div class="wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>Contact</span></nav>
+      <span class="eyebrow">Contact</span>
+      <h1>Ask us anything</h1>
+      <p>Pre-sales questions, licensing, team quotes, or something not working — same inbox, same people.</p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:36px">
+    <div class="wrap">
+      <div class="cart-layout" style="align-items:start">
+
+        <form id="contact-form" novalidate>
+          <div class="fieldset">
+            <div class="form-grid">
+              <div class="field">
+                <label for="cname">Your name</label>
+                <input class="input" id="cname" autocomplete="name" required>
+                <span class="error" id="err-cname" hidden>Required.</span>
+              </div>
+              <div class="field">
+                <label for="cemail">Email</label>
+                <input class="input" id="cemail" type="email" autocomplete="email" required>
+                <span class="error" id="err-cemail" hidden>Enter a valid email address.</span>
+              </div>
+              <div class="field field--full">
+                <label for="ctopic">What's this about?</label>
+                <select class="select" id="ctopic">
+                  <option>Question before buying</option>
+                  <option>Help with a product I bought</option>
+                  <option>Refund request</option>
+                  <option>Team or agency licence</option>
+                  <option>Partnership / affiliate</option>
+                  <option>Something else</option>
+                </select>
+              </div>
+              <div class="field field--full">
+                <label for="cmsg">Message</label>
+                <textarea class="textarea" id="cmsg" placeholder="Tell us what you're trying to do — the more specific, the more useful the answer." required></textarea>
+                <span class="error" id="err-cmsg" hidden>Tell us a little about what you need.</span>
+              </div>
+            </div>
+            <button class="btn btn--primary btn--lg" type="submit" style="margin-top:18px">Send message</button>
+            <p class="tiny muted" style="margin-top:12px">
+              Demo form — it doesn't send anywhere yet. <code>README.md</code> shows how to point it at Formspree, Netlify Forms or your own endpoint.
+            </p>
+          </div>
+        </form>
+
+        <aside>
+          <div class="card" style="margin-bottom:18px">
+            <h3>Email us directly</h3>
+            <ul class="includes" id="contact-methods" style="margin-top:14px"></ul>
+          </div>
+          <div class="card">
+            <h3>Common answers</h3>
+            <p class="muted small" style="margin:8px 0 14px">Most questions we get are already answered on the FAQ page — refunds, licences, what you need to run the automations.</p>
+            <a class="btn btn--ghost btn--block" href="faq.html">Read the FAQ</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+$('#contact-methods').innerHTML = [
+  [SITE.email, 'General enquiries'],
+  [SITE.supportEmail, 'Product support and refunds'],
+].map(([addr, label]) => `<li>${icon('mail')}<span><a href="mailto:${esc(addr)}">${esc(addr)}</a><br><span class="tiny muted">${esc(label)}</span></span></li>`)
+ .concat([`<li>${icon('clock')}<span>Replies within one business day<br><span class="tiny muted">Mon–Fri, usually much faster</span></span></li>`])
+ .join('');
+
+$('#contact-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('#cname').value.trim();
+  const email = $('#cemail').value.trim();
+  const msg = $('#cmsg').value.trim();
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+
+  $('#err-cname').hidden = !!name;
+  $('#err-cemail').hidden = emailOk;
+  $('#err-cmsg').hidden = msg.length >= 5;
+
+  if (!name || !emailOk || msg.length < 5) {
+    toast('Check the highlighted fields', 'info');
+    return;
+  }
+
+  // Replace this with a real form endpoint — see README.md.
+  toast('Thanks — we\'ll reply within a business day');
+  e.target.reset();
+});
+</script>
+</body>
+</html>
