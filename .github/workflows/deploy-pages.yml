@@ -31,11 +31,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure Pages
-        # enablement: true switches Pages on the first time this runs, so no
-        # manual toggle in repository settings is needed.
+        # One-time manual step before this can succeed:
+        #   Settings → Pages → Build and deployment → Source → "GitHub Actions"
+        # The workflow token is not permitted to enable Pages itself (creating a
+        # Pages site needs repo-admin rights), so it has to be switched on once
+        # by hand. Every push after that deploys automatically.
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Upload the site
         uses: actions/upload-pages-artifact@v3
